@@ -1,0 +1,23 @@
+// 1. 変数や関数は最初でOK（CSSは書き出さないため）
+@use "./assets/styles/global/setting" as *;
+@use "./assets/styles/global/function" as *;
+
+// 2. まず Tailwind を読み込む
+@import "tailwindcss";
+
+// 3. Tailwind の「baseレイヤー」として自作リセットを読み込む
+// これにより、Tailwindのクラス（!px-4などを使わなくても）で上書き可能になります
+@layer base {
+  // 手っ取り早くは、以下のように直接読み込みます
+  @import "./assets/styles/foundation/reset";
+  @import "./assets/styles/foundation/base";
+
+  body {
+    background-color: #020617;
+    color: white;
+  }
+}// ここにApp全体の共通スタイルを書く
+body {
+  background-color: #1a1a1a;
+  color: white;
+}
