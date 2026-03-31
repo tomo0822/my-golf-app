@@ -18,6 +18,7 @@ function App() {
     selectMedal,
   } = useOlympicScore();
 
+  // 画面切り替えのロジック
   if (screen === "setup") {
     return (
       <SetupScreen
@@ -25,7 +26,11 @@ function App() {
         setPlayers={setPlayers}
         rate={rate}
         setRate={setRate}
-        onStart={() => setScreen("game")}
+        onStart={() => {
+          if (players.filter((p) => p.trim()).length < 2)
+            return alert("2人以上入力してください");
+          setScreen("game");
+        }}
       />
     );
   }
@@ -41,6 +46,7 @@ function App() {
     );
   }
 
+  // デフォルトは GameScreen
   return (
     <GameScreen
       currentHole={currentHole}
@@ -49,7 +55,15 @@ function App() {
       scores={scores}
       selectMedal={selectMedal}
       calculateTotalScores={calculateTotalScores}
-      onBack={() => confirm("戻りますか？") && setScreen("setup")}
+      onBack={() => {
+        if (
+          window.confirm(
+            "設定画面に戻ります。よろしいですか？\n(入力したスコアは保持されます)",
+          )
+        ) {
+          setScreen("setup");
+        }
+      }}
       onFinish={() => setScreen("result")}
     />
   );

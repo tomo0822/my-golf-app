@@ -25,28 +25,35 @@ export function useOlympicScore() {
   );
 
   useEffect(() => {
-    const data = {
-      golf_screen: screen,
-      golf_players: JSON.stringify(players),
-      golf_currentHole: currentHole,
-      golf_scores: JSON.stringify(scores),
-      golf_rate: rate,
-    };
-    Object.entries(data).forEach(([k, v]) =>
-      localStorage.setItem(k, v.toString()),
-    );
+    localStorage.setItem("golf_screen", screen);
+    localStorage.setItem("golf_players", JSON.stringify(players));
+    localStorage.setItem("golf_currentHole", currentHole.toString());
+    localStorage.setItem("golf_scores", JSON.stringify(scores));
+    localStorage.setItem("golf_rate", rate.toString());
   }, [screen, players, currentHole, scores, rate]);
 
   const calculateTotalScores = () => {
     return players
       .map((name) => {
         let total = 0;
-        Object.values(scores).forEach((hole) => {
-          if (hole[name]) total += MEDAL_POINTS[hole[name]] || 0;
+        Object.values(scores).forEach((holeScores) => {
+          const medal = holeScores[name];
+          if (medal) total += MEDAL_POINTS[medal] || 0;
         });
         return { name, total };
       })
       .sort((a, b) => b.total - a.total);
+  };
+
+  // --- 元のロジックを完全再現 ---
+  const selectMedal = (playerName, medalType) => {
+    const holeScores = { ...(scores[currentHole] || {}) };
+    if (holeScores[playerName] === medalType) {
+      delete holeScores[playerName];
+    } else {
+      holeScores[playerName] = medalType;
+    }
+    setScores({ ...scores, [currentHole]: holeScores });
   };
 
   return {
@@ -61,5 +68,6 @@ export function useOlympicScore() {
     rate,
     setRate,
     calculateTotalScores,
+    selectMedal,
   };
 }
