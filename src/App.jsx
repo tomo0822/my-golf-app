@@ -9,6 +9,8 @@ function App() {
     setScreen,
     players,
     setPlayers,
+    courseName,
+    setCourseName,
     currentHole,
     setCurrentHole,
     scores,
@@ -16,16 +18,23 @@ function App() {
     setRate,
     calculateTotalScores,
     selectMedal,
+    history,
+    saveToHistory,
+    deleteHistory,
+    resetGame,
   } = useOlympicScore();
 
-  // 画面切り替えのロジック
   if (screen === "setup") {
     return (
       <SetupScreen
         players={players}
         setPlayers={setPlayers}
+        courseName={courseName}
+        setCourseName={setCourseName}
         rate={rate}
         setRate={setRate}
+        history={history}
+        onDeleteHistory={deleteHistory}
         onStart={() => {
           if (players.filter((p) => p.trim()).length < 2)
             return alert("2人以上入力してください");
@@ -41,30 +50,27 @@ function App() {
         players={players}
         scores={scores}
         rate={rate}
+        courseName={courseName}
         calculateTotalScores={calculateTotalScores}
+        onNewGame={resetGame}
       />
     );
   }
 
-  // デフォルトは GameScreen
   return (
     <GameScreen
       currentHole={currentHole}
       setCurrentHole={setCurrentHole}
       players={players}
       scores={scores}
+      courseName={courseName}
       selectMedal={selectMedal}
       calculateTotalScores={calculateTotalScores}
-      onBack={() => {
-        if (
-          window.confirm(
-            "設定画面に戻ります。よろしいですか？\n(入力したスコアは保持されます)",
-          )
-        ) {
-          setScreen("setup");
-        }
+      onBack={() => confirm("設定に戻りますか？") && setScreen("setup")}
+      onFinish={() => {
+        saveToHistory();
+        setScreen("result");
       }}
-      onFinish={() => setScreen("result")}
     />
   );
 }

@@ -3,6 +3,7 @@ export default function GameScreen({
   setCurrentHole,
   players,
   scores,
+  courseName,
   selectMedal,
   calculateTotalScores,
   onBack,
@@ -10,7 +11,6 @@ export default function GameScreen({
 }) {
   const currentTotalScores = calculateTotalScores();
 
-  // --- 元のロジックを完全再現 ---
   const isMedalTaken = (medalType, playerName) => {
     const holeScores = scores[currentHole] || {};
     return Object.entries(holeScores).some(
@@ -35,33 +35,42 @@ export default function GameScreen({
   ];
 
   return (
-    <div className="flex flex-col bg-slate-950 text-white overflow-hidden p-3 pb-safe min-h-screen">
-      <header className="flex justify-between items-center sticky top-0 mb-5 px-1 pt-2">
-        <div className="text-2xl font-black italic text-green-500 tracking-tighter">
-          HOLE {currentHole}
+    <div className="flex flex-col bg-slate-950 text-white p-3 min-h-screen">
+      <header className="flex justify-between items-end py-4 px-1">
+        <div>
+          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+            {courseName || "OLYMPIC"}
+          </div>
+          <div className="text-3xl font-black italic text-green-500 tracking-tighter leading-none">
+            HOLE {currentHole}
+          </div>
         </div>
         <button
           onClick={onBack}
-          className="inline-flex items-center justify-center text-[14px] font-black text-slate-500 border border-slate-800 px-5 py-3 rounded-full active:bg-slate-900"
+          className="text-[12px] font-black text-slate-600 border border-slate-900 px-4 py-2 rounded-full"
         >
           RESET
         </button>
       </header>
 
-      <div className="flex-1 flex flex-col gap-5 overflow-hidden mb-2">
-        {players.map((name, i) => (
+      {/* ホール番号が変わるたびに key をリセットしてアニメーションを再トリガー */}
+      <div
+        key={currentHole}
+        className="flex-1 space-y-4 mb-4 overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-300"
+      >
+        {players.map((name) => (
           <div
-            key={i}
-            className="bg-slate-900/80 border border-slate-800 p-3 rounded-[2rem] flex flex-col justify-center flex-1 max-h-[110px]"
+            key={name}
+            className="bg-slate-900 border border-slate-800 p-4 rounded-[2rem] shadow-xl"
           >
-            <div className="flex justify-between items-center mb-2 px-2 border-l-2 border-green-500">
-              <span className="text-sm font-black truncate max-w-[120px]">
+            <div className="flex justify-between items-center mb-3 px-2 border-l-2 border-green-500">
+              <span className="font-black truncate max-w-[150px] text-sm">
                 {name}
               </span>
-              <span className="text-[10px] font-bold text-slate-400">
+              <span className="text-[10px] text-slate-400 font-bold uppercase">
                 Score:{" "}
-                <span className="text-green-400 text-xs font-black">
-                  {currentTotalScores.find((s) => s.name === name).total}
+                <span className="text-green-400 font-black ml-1 text-sm">
+                  {currentTotalScores.find((s) => s.name === name)?.total || 0}
                 </span>
               </span>
             </div>
@@ -86,27 +95,21 @@ export default function GameScreen({
         ))}
       </div>
 
-      <div className="mb-20 px-1">
-        <p className="text-[9px] font-black text-slate-500 tracking-widest mb-2 px-1 text-center">
-          TOTAL RANKING
-        </p>
-        <div className="flex gap-2 pb-2">
+      <div className="mb-24 px-1">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {currentTotalScores.map((s, idx) => (
             <div
               key={s.name}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col items-center min-w-[80px] flex-1"
+              className="bg-slate-900/50 border border-slate-800 rounded-2xl p-3 flex flex-col items-center min-w-[85px] flex-1"
             >
               <span
-                className={`text-[10px] font-black px-2 py-0.5 rounded-full mb-1 ${idx === 0 ? "bg-yellow-500 text-yellow-950" : "bg-slate-800 text-slate-400"}`}
+                className={`text-[9px] font-black px-2 py-0.5 rounded-full mb-1 ${idx === 0 ? "bg-yellow-500 text-yellow-950" : "bg-slate-800 text-slate-500"}`}
               >
                 {idx + 1}位
               </span>
-              <span className="text-xs font-bold truncate w-full text-center">
-                {s.name}
-              </span>
-              <span className="text-lg font-black text-green-400">
+              <span className="text-lg font-black text-green-400 leading-none">
                 {s.total}
-                <span className="text-[10px] ml-0.5 font-normal text-slate-500">
+                <span className="text-[9px] ml-0.5 font-normal text-slate-600 uppercase">
                   pt
                 </span>
               </span>
@@ -115,11 +118,11 @@ export default function GameScreen({
         </div>
       </div>
 
-      <footer className="fixed bottom-0 left-0 w-full p-4 bg-slate-950/95 backdrop-blur-xl flex gap-3 border-t border-slate-800">
+      <footer className="fixed bottom-0 left-0 w-full p-4 bg-slate-950/95 backdrop-blur-xl flex gap-3 border-t border-slate-800 pb-8 z-20">
         <button
           disabled={currentHole === 1}
           onClick={() => setCurrentHole((h) => h - 1)}
-          className="w-20 h-14 bg-slate-900 text-slate-400 rounded-2xl font-black text-xs border border-slate-800 disabled:opacity-10 flex items-center justify-center"
+          className="w-20 h-14 bg-slate-900 text-slate-400 rounded-2xl font-black text-xs border border-slate-800"
         >
           PREV
         </button>
@@ -127,7 +130,7 @@ export default function GameScreen({
           onClick={() =>
             currentHole === 18 ? onFinish() : setCurrentHole((h) => h + 1)
           }
-          className="flex-1 h-14 bg-gradient-to-b from-green-500 to-green-700 rounded-2xl font-black text-base text-white flex items-center justify-center shadow-lg shadow-green-900/20"
+          className="flex-1 h-14 bg-gradient-to-b from-green-500 to-green-700 rounded-2xl font-black text-white shadow-lg"
         >
           {currentHole === 18 ? "VIEW RESULT" : "NEXT HOLE"}
         </button>
